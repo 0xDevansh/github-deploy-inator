@@ -1,20 +1,23 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/DeathVenom54/github-deploy-inator/logger"
-	"io/ioutil"
+	"github.com/DeathVenom54/github-deploy-inator/structs"
 	"net/http"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	bodyBytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
+	decoder := json.NewDecoder(r.Body)
+
+	var data structs.GithubWebhook
+	if err := decoder.Decode(&data); err != nil {
 		logger.Error(err)
 	}
-	fmt.Println(string(bodyBytes))
+	fmt.Println(data)
 
-	_, err = w.Write([]byte("Hello"))
+	_, err := w.Write([]byte("Hello"))
 	if err != nil {
 		return
 	}
