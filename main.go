@@ -11,8 +11,6 @@ func main() {
 
 	err := http.ListenAndServe(":4567", r)
 	if err != nil {
-		logger.Error(err)
+		logger.Error(err, true)
 	}
-
-	logger.Log("Listening...")
 }

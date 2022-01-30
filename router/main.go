@@ -12,7 +12,7 @@ func CreateRouter() *chi.Mux {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.Logger)
 
-	router.Post("/", handlers.Index)
+	router.Post("/", handlers.WebhookHandler)
 
 	return router
 }

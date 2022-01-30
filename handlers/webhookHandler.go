@@ -8,12 +8,12 @@ import (
 	"net/http"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
+func WebhookHandler(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	var data structs.GithubWebhook
 	if err := decoder.Decode(&data); err != nil {
-		logger.Error(err)
+		logger.Error(err, false)
 	}
 	fmt.Println(data)
 
