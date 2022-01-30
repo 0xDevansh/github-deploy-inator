@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -25,6 +26,8 @@ func writeToFile(file, text string) error {
 }
 
 func Log(message string) {
+	fmt.Println(message)
+
 	err := writeToFile("all.log", message)
 	if err != nil {
 		log.Fatalf("Error while writing log to normal.log: %s", err)
@@ -32,6 +35,8 @@ func Log(message string) {
 }
 
 func Error(error string) {
+	log.Println(error)
+
 	err := writeToFile("error.log", error)
 	if err != nil {
 		log.Fatalf("Error while writing log to error.log: %s", err)
