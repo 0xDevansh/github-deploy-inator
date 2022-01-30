@@ -34,11 +34,15 @@ func Log(message string) {
 	}
 }
 
-func Error(error error) {
-	log.Println(error)
-
+func Error(error error, fatal bool) {
 	err := writeToFile("error.log", error.Error())
 	if err != nil {
 		log.Fatalf("Error while writing log to error.log: %s", err)
+	}
+
+	if fatal {
+		log.Fatalln(error)
+	} else {
+		log.Println(error)
 	}
 }
