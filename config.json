@@ -9,7 +9,7 @@
       "notifyDiscord": true,
       "discord": {
         "webhook": "webhook-goes-here",
-        "notifyBeforeRun": ""
+        "notifyBeforeRun": true
       }
     }
   ]
