@@ -6,7 +6,7 @@
       "endpoint": "/github/webhook",
       "directory": "/home/dv/projects",
       "command": "ls",
-      "notifyDiscord": true,
+      "notifyDiscord": false,
       "discord": {
         "webhook": "webhook-goes-here",
         "notifyBeforeRun": true
