@@ -4,8 +4,8 @@
     {
       "name": "listener-name",
       "endpoint": "/github/webhook",
-      "directory": "/home/dv/projects/nodejs-bot",
-      "command": "yarn deploy",
+      "directory": "/home/dv/projects",
+      "command": "ls",
       "notifyDiscord": true,
       "discord": {
         "webhook": "webhook-goes-here",
