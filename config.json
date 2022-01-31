@@ -1,0 +1,16 @@
+{
+  "port": ":4567",
+  "listeners": [
+    {
+      "name": "listener-name",
+      "endpoint": "/github/webhook",
+      "directory": "/home/dv/projects/nodejs-bot",
+      "command": "yarn deploy",
+      "notifyDiscord": true,
+      "discord": {
+        "webhook": "webhook-goes-here",
+        "notifyBeforeRun": ""
+      }
+    }
+  ]
+}
