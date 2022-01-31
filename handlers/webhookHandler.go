@@ -8,17 +8,19 @@ import (
 	"net/http"
 )
 
-func WebhookHandler(w http.ResponseWriter, r *http.Request) {
-	decoder := json.NewDecoder(r.Body)
+func CreateWebhookHandler(directory string, command string) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		decoder := json.NewDecoder(r.Body)
 
-	var data structs.GithubWebhook
-	if err := decoder.Decode(&data); err != nil {
-		logger.Error(err, false)
-	}
-	fmt.Println(data)
+		var data structs.GithubWebhook
+		if err := decoder.Decode(&data); err != nil {
+			logger.Error(err, false)
+		}
+		fmt.Println(data)
 
-	_, err := w.Write([]byte("Hello"))
-	if err != nil {
-		return
+		_, err := w.Write([]byte("Hello"))
+		if err != nil {
+			return
+		}
 	}
 }
