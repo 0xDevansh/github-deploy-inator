@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -17,7 +18,7 @@ func runLogTest(t *testing.T, message, filename string) {
 		if filename == "all.log" {
 			Log(message)
 		} else {
-			Error(message)
+			Error(errors.New(message), false)
 		}
 
 		// read file to make sure it has the log at the end

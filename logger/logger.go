@@ -15,12 +15,13 @@ func writeToFile(file, text string) error {
 	defer func(f *os.File) {
 		err := f.Close()
 		if err != nil {
-			log.Fatalf("Error while closing file %s: %s\n", file, err)
+			log.Printf("Error while closing file %s: %s\n", file, err)
 		}
 	}(f)
 
 	log.SetOutput(f)
 	log.Println(text)
+	log.SetOutput(os.Stderr)
 
 	return nil
 }
@@ -34,15 +35,15 @@ func Log(message string) {
 	}
 }
 
-func Error(error error, fatal bool) {
-	err := writeToFile("error.log", error.Error())
+func Error(errorMsg error, fatal bool) {
+	err := writeToFile("error.log", errorMsg.Error())
 	if err != nil {
-		log.Fatalf("Error while writing log to error.log: %s", err)
+		log.Fatalf("Error while writing log to errorMsg.log: %s", err)
 	}
 
 	if fatal {
-		log.Fatalln(error)
+		log.Fatalln(errorMsg)
 	} else {
-		log.Println(error)
+		log.Println(errorMsg)
 	}
 }
