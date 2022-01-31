@@ -14,7 +14,7 @@ func CreateRouter(listeners []structs.Listener) *chi.Mux {
 	router.Use(middleware.Logger)
 
 	for _, listener := range listeners {
-		router.Post(listener.Endpoint, handlers.CreateWebhookHandler(listener.Directory, listener.Command))
+		router.Post(listener.Endpoint, handlers.CreateWebhookHandler(listener))
 	}
 
 	return router
