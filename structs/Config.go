@@ -7,6 +7,7 @@ type Config struct {
 
 type Listener struct {
 	// required properties
+	Name      string `json:"name"`      // a unique name for the webhook
 	Endpoint  string `json:"endpoint"`  // endpoint where http server will listen for hooks
 	Directory string `json:"directory"` // the directory in which the command will be run
 	Command   string `json:"command"`   // the command to run
@@ -14,8 +15,8 @@ type Listener struct {
 	// in your scripts like in node.js or a .sh file, and execute it.
 
 	//additional filters
-	Branch  string   `json:"branch"`  // execute only if push is on this branch
-	Authors []string `json:"authors"` // execute only if head commit author is one of these
+	Branch         string   `json:"branch"`         // execute only if push is on this branch
+	AllowedPushers []string `json:"allowedPushers"` // execute only if pusher is one of these (username)
 
 	NotifyDiscord bool `json:"notifyDiscord"`
 
