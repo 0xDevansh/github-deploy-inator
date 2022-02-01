@@ -8,14 +8,14 @@ import (
 )
 
 func ValidateConfig(config *structs.Config) error {
-	// validate port
-	portRegex := `^:\d+$`
-	match, err := regexp.MatchString(portRegex, config.Port)
+	// validate port and endpoint
+	err := shouldMatchRegex("port", config.Port, `^:\d+$`)
 	if err != nil {
 		return err
 	}
-	if !match {
-		return errors.New("invalid port in config.json, should be in format \":0000\"")
+	err = shouldMatchRegex("endpoint", config.Endpoint, `^\/[\w-\/]*$`)
+	if err != nil {
+		return err
 	}
 
 	// validate listeners
@@ -29,7 +29,7 @@ func ValidateConfig(config *structs.Config) error {
 		if err != nil {
 			return err
 		}
-		err = shouldExist("endpoint", listener.Endpoint, i)
+		err = shouldMatchRegex(fmt.Sprintf("listeners[%d].repository", i), listener.Repository, `[\w-]+\/[\w-]+`)
 		if err != nil {
 			return err
 		}
@@ -55,6 +55,17 @@ func ValidateConfig(config *structs.Config) error {
 				return errors.New(fmt.Sprintf("Discord.Webhook for listeners[%d] must be provided when NotifyDiscord is true\n", i))
 			}
 		}
+	}
+	return nil
+}
+
+func shouldMatchRegex(field, value, regex string) error {
+	match, err := regexp.MatchString(regex, value)
+	if err != nil {
+		return err
+	}
+	if !match {
+		return errors.New(fmt.Sprintf("invalid %s in config.json, should be in format %s", field, regex))
 	}
 	return nil
 }
