@@ -35,6 +35,9 @@ func (m *DiscordNotificationManager) Setup() error {
 	}
 
 	matches := r.FindStringSubmatch(m.Webhook.Url)
+	if len(matches) < 3 {
+		return errors.New("the provided webhook url is invalid")
+	}
 	m.Webhook.Id = matches[1]
 	m.Webhook.Token = matches[2]
 
