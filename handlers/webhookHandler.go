@@ -19,10 +19,12 @@ func CreateWebhookHandler(listener structs.Listener) func(w http.ResponseWriter,
 		}
 
 		// run filters
+		if strings.ToLower(listener.Repository) != strings.ToLower(webhook.Repository.FullName) {
+			return
+		}
 		if listener.Branch != "" {
 			branch := webhook.Ref[11:]
 			if listener.Branch != branch {
-				reply(w)
 				return
 			}
 		}
@@ -35,7 +37,6 @@ func CreateWebhookHandler(listener structs.Listener) func(w http.ResponseWriter,
 				}
 			}
 			if !pusherIsAllowed {
-				reply(w)
 				return
 			}
 		}
@@ -47,11 +48,15 @@ func CreateWebhookHandler(listener structs.Listener) func(w http.ResponseWriter,
 		}
 		if listener.NotifyDiscord {
 			err := m.Setup()
-			handleErr(err)
+			if err != nil {
+				logger.Error(err, false)
+			}
 
 			if listener.Discord.NotifyBeforeRun {
 				err := m.SendPreRunNotification(&listener, &webhook)
-				handleErr(err)
+				if err != nil {
+					logger.Error(err, false)
+				}
 			}
 		}
 
@@ -64,27 +69,23 @@ func CreateWebhookHandler(listener structs.Listener) func(w http.ResponseWriter,
 		if err != nil {
 			if listener.NotifyDiscord {
 				err := m.SendErrorMessage(&listener, &err, &webhook)
-				handleErr(err)
+				if err != nil {
+					logger.Error(err, false)
+				}
 			}
-			handleErr(err)
+			if err != nil {
+				logger.Error(err, false)
+				return
+			}
 		} else if listener.NotifyDiscord {
 			// send notification
 			output := string(out)
 			err := m.SendSuccessMessage(&listener, &output, &webhook)
-			handleErr(err)
+			if err != nil {
+				logger.Error(err, false)
+			}
 		}
 
-		reply(w)
+		w.WriteHeader(200)
 	}
-}
-
-func reply(w http.ResponseWriter) {
-	w.WriteHeader(200)
-}
-
-func handleErr(err error) {
-	if err != nil {
-		logger.Error(err, false)
-	}
-
 }
