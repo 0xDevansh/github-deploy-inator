@@ -11,7 +11,6 @@ func CreateRouter(config *structs.Config) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Recoverer)
-	router.Use(middleware.Logger)
 
 	router.Post(config.Endpoint, handlers.CreateWebhookHandler(config))
 
