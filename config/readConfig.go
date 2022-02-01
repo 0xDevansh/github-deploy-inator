@@ -6,22 +6,22 @@ import (
 	"io/ioutil"
 )
 
-func ReadConfig() (structs.Config, error) {
+func ReadConfig() (*structs.Config, error) {
 	configText, err := ioutil.ReadFile("config.json")
 	if err != nil {
-		return structs.Config{}, err
+		return &structs.Config{}, err
 	}
 
 	var config structs.Config
 	err = json.Unmarshal(configText, &config)
 	if err != nil {
-		return structs.Config{}, err
+		return &structs.Config{}, err
 	}
 
 	err = ValidateConfig(&config)
 	if err != nil {
-		return structs.Config{}, err
+		return &structs.Config{}, err
 	}
 
-	return config, nil
+	return &config, nil
 }

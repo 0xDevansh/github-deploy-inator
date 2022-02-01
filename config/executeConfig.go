@@ -14,7 +14,7 @@ func ExecuteConfig() error {
 	}
 
 	// start server
-	r := router.CreateRouter(config.Listeners)
+	r := router.CreateRouter(config)
 
 	logger.Log(fmt.Sprintf("Listening for Github webhooks at %s", config.Port))
 	err = http.ListenAndServe(config.Port, r)
