@@ -31,7 +31,7 @@ func CreateWebhookHandler(listener structs.Listener) func(w http.ResponseWriter,
 		if len(listener.AllowedPushers) > 0 {
 			pusherIsAllowed := false
 			for _, pusher := range listener.AllowedPushers {
-				if webhook.Pusher.Name == pusher {
+				if strings.ToLower(webhook.Pusher.Name) == strings.ToLower(pusher) {
 					pusherIsAllowed = true
 					break
 				}
