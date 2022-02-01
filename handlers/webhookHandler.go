@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/DeathVenom54/github-deploy-inator/logger"
 	"github.com/DeathVenom54/github-deploy-inator/structs"
 	"net/http"
@@ -23,6 +22,7 @@ func CreateWebhookHandler(listener structs.Listener) func(w http.ResponseWriter,
 		if listener.Branch != "" {
 			branch := webhook.Ref[11:]
 			if listener.Branch != branch {
+				reply(w)
 				return
 			}
 		}
@@ -35,23 +35,56 @@ func CreateWebhookHandler(listener structs.Listener) func(w http.ResponseWriter,
 				}
 			}
 			if !pusherIsAllowed {
+				reply(w)
 				return
 			}
 		}
 
+		m := structs.DiscordNotificationManager{
+			Webhook: structs.DiscordWebhookData{
+				Url: listener.Discord.Webhook,
+			},
+		}
+		if listener.NotifyDiscord {
+			err := m.Setup()
+			handleErr(err)
+
+			if listener.Discord.NotifyBeforeRun {
+				err := m.SendPreRunNotification(&listener, &webhook)
+				handleErr(err)
+			}
+		}
+
+		// run command
 		args := strings.Split(listener.Command, " ")
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Dir = listener.Directory
 
 		out, err := cmd.Output()
 		if err != nil {
-			fmt.Println(err)
+			if listener.NotifyDiscord {
+				err := m.SendErrorMessage(&listener, &err, &webhook)
+				handleErr(err)
+			}
+			handleErr(err)
+		} else if listener.NotifyDiscord {
+			// send notification
+			output := string(out)
+			err := m.SendSuccessMessage(&listener, &output, &webhook)
+			handleErr(err)
 		}
-		fmt.Println(string(out))
 
-		_, err = w.Write([]byte("Hello"))
-		if err != nil {
-			return
-		}
+		reply(w)
 	}
+}
+
+func reply(w http.ResponseWriter) {
+	w.WriteHeader(200)
+}
+
+func handleErr(err error) {
+	if err != nil {
+		logger.Error(err, false)
+	}
+
 }

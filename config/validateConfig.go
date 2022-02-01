@@ -43,8 +43,17 @@ func ValidateConfig(config *structs.Config) error {
 		}
 
 		// discord
-		if listener.NotifyDiscord && listener.Discord.Webhook == "" {
-			return errors.New(fmt.Sprintf("Discord.Webhook for listeners[%d] must be provided when NotifyDiscord is true\n", i))
+		if listener.NotifyDiscord {
+			if listener.Discord.Webhook == "" {
+				match, err := regexp.MatchString(structs.DiscordWebhookRegex, listener.Discord.Webhook)
+				if err != nil {
+					return err
+				}
+				if !match {
+					return errors.New("please provide a valid Discord webhook url")
+				}
+				return errors.New(fmt.Sprintf("Discord.Webhook for listeners[%d] must be provided when NotifyDiscord is true\n", i))
+			}
 		}
 	}
 	return nil
