@@ -2,9 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/DeathVenom54/github-deploy-inator/logger"
 	"github.com/DeathVenom54/github-deploy-inator/structs"
 	"net/http"
 	"os/exec"
@@ -16,10 +14,8 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 		decoder := json.NewDecoder(r.Body)
 
 		var webhook structs.GithubWebhook
-		if err := decoder.Decode(&webhook); err != nil {
-			logger.Error(err, false)
-			return
-		}
+		err := decoder.Decode(&webhook)
+		handleErr(err)
 
 		// get the correct listener
 		var listener *structs.Listener
@@ -30,7 +26,7 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 			}
 		}
 		if listener == nil {
-			logger.Error(errors.New(fmt.Sprintf("No listener found for webhook from %s", webhook.Repository.FullName)), false)
+			panic(fmt.Errorf("no listener found for webhook from %s", webhook.Repository.FullName))
 			return
 		}
 
@@ -61,15 +57,11 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 		}
 		if listener.NotifyDiscord {
 			err := m.Setup()
-			if err != nil {
-				logger.Error(err, false)
-			}
+			handleErr(err)
 
 			if listener.Discord.NotifyBeforeRun {
 				err := m.SendPreRunNotification(listener, &webhook)
-				if err != nil {
-					logger.Error(err, false)
-				}
+				handleErr(err)
 			}
 		}
 
@@ -82,23 +74,22 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 		if err != nil {
 			if listener.NotifyDiscord {
 				err := m.SendErrorMessage(listener, &err, &webhook)
-				if err != nil {
-					logger.Error(err, false)
-				}
+				handleErr(err)
 			}
-			if err != nil {
-				logger.Error(err, false)
-				return
-			}
+			handleErr(err)
 		} else if listener.NotifyDiscord {
 			// send notification
 			output := string(out)
 			err := m.SendSuccessMessage(listener, &output, &webhook)
-			if err != nil {
-				logger.Error(err, false)
-			}
+			handleErr(err)
 		}
 
 		w.WriteHeader(200)
+	}
+}
+
+func handleErr(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
