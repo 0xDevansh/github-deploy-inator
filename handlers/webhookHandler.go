@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
+	"crypto/hmac"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"github.com/DeathVenom54/github-deploy-inator/structs"
+	"io/ioutil"
 	"net/http"
 	"os/exec"
 	"strings"
@@ -34,12 +35,11 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 
 		// verify signature if secret is provided
 		if listener.Secret != "" {
-			hash := sha1.New()
-			hash.Write([]byte(listener.Secret))
-			signature := "sha1=" + hex.EncodeToString(hash.Sum(nil))
-			fmt.Println(signature)
-			fmt.Println(r.Header.Get("X-Hub-Signature"))
-			if signature != r.Header.Get("X-Hub-Signature") {
+			body, err := ioutil.ReadAll(r.Body)
+			handleErr(err)
+
+			providedSignature := r.Header.Get("X-Hub-Signature")
+			if verifySignature(listener.Secret, string(body), providedSignature) {
 				panic(fmt.Sprintf("received webhook from %s but signature does not match secret", webhook.Repository.FullName))
 			}
 		}
@@ -100,6 +100,14 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 
 		w.WriteHeader(200)
 	}
+}
+
+func verifySignature(key, payload, provided string) bool {
+	mac := hmac.New(sha256.New, []byte(key))
+	mac.Write([]byte(payload))
+
+	expected := mac.Sum(nil)
+	return hmac.Equal(expected, []byte(provided))
 }
 
 func handleErr(err error) {

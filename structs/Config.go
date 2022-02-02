@@ -16,6 +16,7 @@ type Listener struct {
 	// in your scripts like in node.js or a .sh file, and execute it.
 
 	// additional filters
+	Secret         string   `json:"secret"`
 	Branch         string   `json:"branch"`         // execute only if push is on this branch
 	AllowedPushers []string `json:"allowedPushers"` // execute only if pusher is one of these (username)
 
