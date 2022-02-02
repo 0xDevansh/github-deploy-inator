@@ -91,7 +91,7 @@ func (m *DiscordNotificationManager) SendSuccessMessage(listener *Listener, outp
 
 	if listener.Discord.SendOutput {
 		successEmbed = successEmbed.
-			AddField("Output", *output)
+			AddField("Output", fmt.Sprintf("```\n%s\n```", *output))
 	}
 
 	webhookParams := discordgo.WebhookParams{Embeds: []*discordgo.MessageEmbed{successEmbed.MessageEmbed}}
