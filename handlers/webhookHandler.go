@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/DeathVenom54/github-deploy-inator/structs"
@@ -28,6 +30,18 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 		if listener == nil {
 			panic(fmt.Errorf("no listener found for webhook from %s", webhook.Repository.FullName))
 			return
+		}
+
+		// verify signature if secret is provided
+		if listener.Secret != "" {
+			hash := sha1.New()
+			hash.Write([]byte(listener.Secret))
+			signature := "sha1=" + hex.EncodeToString(hash.Sum(nil))
+			fmt.Println(signature)
+			fmt.Println(r.Header.Get("X-Hub-Signature"))
+			if signature != r.Header.Get("X-Hub-Signature") {
+				panic(fmt.Sprintf("received webhook from %s but signature does not match secret", webhook.Repository.FullName))
+			}
 		}
 
 		// run filters
