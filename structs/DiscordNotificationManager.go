@@ -51,16 +51,16 @@ func (m *DiscordNotificationManager) Setup() error {
 }
 
 func (m *DiscordNotificationManager) SendPreRunNotification(listener *Listener, ghWebhook *GithubWebhook) error {
-	t := time.Now()
-	formattedTime := fmt.Sprintf("%02d/%02d/%02d at %02d:%02d:%02d", t.Day(), t.Month(), t.Year(), t.Hour(), t.Minute(), t.Second())
+	t := time.Now().UTC().Unix()
+
 	preRunEmbed := embed.NewEmbed().
 		SetColor(blurple).
 		SetTitle(fmt.Sprintf("Deploying %s...", listener.Name)).
-		AddField("Repository", ghWebhook.Repository.FullName).
-		AddField("Pusher", ghWebhook.Pusher.Name).
-		AddField("Branch", ghWebhook.Ref[11:]).
+		AddField("Repository", fmt.Sprintf("[%s](%s)", ghWebhook.Repository.FullName, ghWebhook.Repository.URL)).
+		AddField("Pusher", fmt.Sprintf("[%s](%s)", ghWebhook.Pusher.Name, "https://github.com/"+ghWebhook.Pusher.Name)).
+		AddField("Branch", fmt.Sprintf("[%s](%s)", ghWebhook.Ref[11:], ghWebhook.Repository.URL+"/tree/"+ghWebhook.Ref[11:])).
 		AddField("Command", listener.Command).
-		SetFooter(formattedTime).
+		AddField("Time", fmt.Sprintf("<t:%d:f>", t)).
 		MessageEmbed
 
 	webhookParams := discordgo.WebhookParams{Embeds: []*discordgo.MessageEmbed{preRunEmbed}}
@@ -73,26 +73,24 @@ func (m *DiscordNotificationManager) SendPreRunNotification(listener *Listener, 
 }
 
 func (m *DiscordNotificationManager) SendSuccessMessage(listener *Listener, output *string, ghWebhook *GithubWebhook) error {
-	t := time.Now()
-	formattedTime := fmt.Sprintf("%02d/%02d/%02d at %02d:%02d:%02d", t.Day(), t.Month(), t.Year(), t.Hour(), t.Minute(), t.Second())
+	t := time.Now().UTC().Unix()
 
 	successEmbed := embed.NewEmbed().
 		SetTitle(fmt.Sprintf("Succesfully deployed %s", listener.Name)).
-		SetColor(green).
-		SetFooter(formattedTime)
+		SetColor(green)
 
 	if !listener.Discord.NotifyBeforeRun {
 		successEmbed = successEmbed.
-			AddField("Repository", ghWebhook.Repository.FullName).
-			AddField("Pusher", ghWebhook.Pusher.Name).
-			AddField("Branch", ghWebhook.Ref[11:]).
+			AddField("Repository", fmt.Sprintf("[%s](%s)", ghWebhook.Repository.FullName, ghWebhook.Repository.URL)).
+			AddField("Pusher", fmt.Sprintf("[%s](%s)", ghWebhook.Pusher.Name, "https://github.com/"+ghWebhook.Pusher.Name)).
+			AddField("Branch", fmt.Sprintf("[%s](%s)", ghWebhook.Ref[11:], ghWebhook.Repository.URL+"/tree/"+ghWebhook.Ref[11:])).
 			AddField("Command", listener.Command)
 	}
-
 	if listener.Discord.SendOutput {
 		successEmbed = successEmbed.
 			AddField("Output", fmt.Sprintf("```\n%s\n```", *output))
 	}
+	successEmbed = successEmbed.AddField("Time", fmt.Sprintf("<t:%d:f>", t))
 
 	webhookParams := discordgo.WebhookParams{Embeds: []*discordgo.MessageEmbed{successEmbed.MessageEmbed}}
 	_, err := m.Session.WebhookExecute(m.Webhook.Id, m.Webhook.Token, false, &webhookParams)
@@ -104,14 +102,12 @@ func (m *DiscordNotificationManager) SendSuccessMessage(listener *Listener, outp
 }
 
 func (m *DiscordNotificationManager) SendErrorMessage(listener *Listener, error *error, ghWebhook *GithubWebhook) error {
-	t := time.Now()
-	formattedTime := fmt.Sprintf("%02d/%02d/%02d at %02d:%02d:%02d", t.Day(), t.Month(), t.Year(), t.Hour(), t.Minute(), t.Second())
+	t := time.Now().UTC().Unix()
 
 	errorEmbed := embed.NewEmbed().
 		SetTitle(fmt.Sprintf("There was an error while deploying %s", listener.Name)).
 		SetColor(red).
-		AddField("Error", (*error).Error()).
-		SetFooter(formattedTime)
+		AddField("Error", (*error).Error())
 
 	if !listener.Discord.NotifyBeforeRun {
 		errorEmbed = errorEmbed.
@@ -120,6 +116,7 @@ func (m *DiscordNotificationManager) SendErrorMessage(listener *Listener, error 
 			AddField("Branch", ghWebhook.Ref[11:]).
 			AddField("Command", listener.Command)
 	}
+	errorEmbed = errorEmbed.AddField("Time", fmt.Sprintf("<t:%d:f>", t))
 
 	webhookParams := discordgo.WebhookParams{Embeds: []*discordgo.MessageEmbed{errorEmbed.MessageEmbed}}
 	_, err := m.Session.WebhookExecute(m.Webhook.Id, m.Webhook.Token, false, &webhookParams)
