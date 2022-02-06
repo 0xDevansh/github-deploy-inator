@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"github.com/DeathVenom54/github-deploy-inator/handlers"
 	"github.com/DeathVenom54/github-deploy-inator/logger"
 	"github.com/DeathVenom54/github-deploy-inator/structs"
@@ -24,13 +23,13 @@ func recovery(next http.Handler) http.Handler {
 		defer func() {
 			err := recover()
 			if err != nil {
-				logger.Error(fmt.Errorf("error: %v", err), false)
+				logger.Err.Println(err)
 
 				w.Header().Set("Content-Type", "text/plain")
 				w.WriteHeader(http.StatusInternalServerError)
 				_, err := w.Write([]byte("500 Internal server error"))
 				if err != nil {
-					logger.Error(err, false)
+					logger.Err.Println(err)
 				}
 			}
 

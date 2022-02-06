@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/DeathVenom54/github-deploy-inator/logger"
 	"github.com/DeathVenom54/github-deploy-inator/router"
 	"net/http"
@@ -16,7 +15,7 @@ func ExecuteConfig() error {
 	// start server
 	r := router.CreateRouter(config)
 
-	logger.Log(fmt.Sprintf("Listening for Github webhooks at %s", config.Port))
+	logger.All.Printf("Listening for Github webhooks on port %s\n", config.Port)
 	err = http.ListenAndServe(config.Port, r)
 	if err != nil {
 		return err

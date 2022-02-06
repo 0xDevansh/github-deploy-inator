@@ -1,49 +1,17 @@
 package logger
 
 import (
-	"fmt"
+	"io"
 	"log"
 	"os"
 )
 
-func writeToFile(file, text string) error {
-	f, err := os.OpenFile(file, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
+var (
+	All *log.Logger
+	Err *log.Logger
+)
 
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			log.Printf("Error while closing file %s: %s\n", file, err)
-		}
-	}(f)
-
-	log.SetOutput(f)
-	log.Println(text)
-	log.SetOutput(os.Stderr)
-
-	return nil
-}
-
-func Log(message string) {
-	fmt.Println(message)
-
-	err := writeToFile("all.log", message)
-	if err != nil {
-		log.Fatalf("Error while writing log to normal.log: %s", err)
-	}
-}
-
-func Error(errorMsg error, fatal bool) {
-	err := writeToFile("error.log", errorMsg.Error())
-	if err != nil {
-		log.Fatalf("Error while writing log to errorMsg.log: %s", err)
-	}
-
-	if fatal {
-		log.Fatalln(errorMsg)
-	} else {
-		log.Println(errorMsg)
-	}
+func Setuplogger(allFile, errFile *os.File) {
+	All = log.New(io.MultiWriter(allFile, os.Stdout), "      ", log.LstdFlags) // blank space to pad error logs
+	Err = log.New(io.MultiWriter(errFile, os.Stderr), "ERROR ", log.LstdFlags)
 }
