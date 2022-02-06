@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"github.com/DeathVenom54/github-deploy-inator/logger"
 	"github.com/DeathVenom54/github-deploy-inator/structs"
 	"io/ioutil"
 	"net/http"
@@ -29,7 +30,7 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 			}
 		}
 		if listener == nil {
-			panic(fmt.Errorf("no listener found for webhook from %s", webhook.Repository.FullName))
+			panic(fmt.Sprintf("no listener found for webhook from %s", webhook.Repository.FullName))
 			return
 		}
 
@@ -48,6 +49,7 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 		if listener.Branch != "" {
 			branch := webhook.Ref[11:]
 			if listener.Branch != branch {
+				panic(fmt.Sprintf("received webhook from %s but branch does not match branch \"%s\" on listener %s", webhook.Repository.FullName, listener.Branch, listener.Name))
 				return
 			}
 		}
@@ -60,6 +62,7 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 				}
 			}
 			if !pusherIsAllowed {
+				panic(fmt.Sprintf("received webhook from %s but pusher %s is not a part of listener.pushers", webhook.Repository.FullName, webhook.Pusher.Name))
 				return
 			}
 		}
@@ -99,6 +102,7 @@ func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r 
 		}
 
 		w.WriteHeader(200)
+		logger.All.Printf("Successfully executed webhook from %s\n", webhook.Repository.FullName)
 	}
 }
 
