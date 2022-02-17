@@ -23,7 +23,10 @@ And then, this project was born.
 
 ## 🛠️ Installation and Setup
 
-Note to future me: Write out this part
+I have no idea. [Use systemd perhaps](https://medium.com/@benmorel/creating-a-linux-service-with-systemd-611b5c8b91d6).
+
+Download the built version from [releases](https://github.com/DeathVenom54/github-deploy-inator/releases) and unzip it to a directory.
+Edit the config.json to your requirements and run the executable.
 
 ## 📝 config.json
 
