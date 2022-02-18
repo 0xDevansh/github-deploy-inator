@@ -20,7 +20,6 @@ zip -r windows_x64.zip github_deploy-inator_windows_x64.exe config.json || exit
 zip -r windows_x86.zip github_deploy-inator_windows_x86.exe config.json || exit
 
 zip -r macos_x64.zip github_deploy-inator_macos_x64 config.json || exit
-zip -r macos_x86.zip github_deploy-inator_macos_x86 config.json || exit
 
 echo "Successfully zipped all files"
 
