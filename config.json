@@ -1,0 +1,18 @@
+{
+  "port": ":4567",
+  "endpoint": "/github/webhook",
+  "listeners": [
+    {
+      "name": "example-listener",
+      "repository": "DeathVenom54/github-deploy-inator",
+      "directory": "/home/dv/projects",
+      "command": "ls",
+      "notifyDiscord": true,
+      "discord": {
+        "webhook": "webhook-goes-here",
+        "notifyBeforeRun": true,
+        "sendOutput": true
+      }
+    }
+  ]
+}
