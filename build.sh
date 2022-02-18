@@ -7,4 +7,4 @@ GOOS=windows GOARCH=amd64 go build -o build/github_deploy-inator_windows_x64.exe
 GOOS=windows GOARCH=386 go build -o build/github_deploy-inator_windows_x86.exe main.go && echo "Built windows x86"
 
 # build for macos
-GOOS=darwin GOARCH=amd64 go build -o build/github_deploy-inator_macos_x64.exe main.go && echo "Built macos x64"
+GOOS=darwin GOARCH=amd64 go build -o build/github_deploy-inator_macos_x64 main.go && echo "Built macos x64"
