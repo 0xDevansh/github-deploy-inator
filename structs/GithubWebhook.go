@@ -3,6 +3,7 @@ package structs
 import "time"
 
 type GithubWebhook struct {
+	Zen        string      `json:"zen"`
 	Ref        string      `json:"ref"`
 	Before     string      `json:"before"`
 	After      string      `json:"after"`

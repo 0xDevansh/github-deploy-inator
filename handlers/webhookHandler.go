@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/DeathVenom54/github-deploy-inator/logger"
 	"github.com/DeathVenom54/github-deploy-inator/structs"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os/exec"
@@ -15,10 +16,17 @@ import (
 
 func CreateWebhookHandler(config *structs.Config) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		handleErr(err)
+
+		if strings.Contains(string(body), `"zen":`) {
+			logger.All.Printf("A webhook has been set up\n")
+			return
+		}
 		decoder := json.NewDecoder(r.Body)
 
 		var webhook structs.GithubWebhook
-		err := decoder.Decode(&webhook)
+		err = decoder.Decode(&webhook)
 		handleErr(err)
 
 		// get the correct listener
