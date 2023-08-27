@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const DiscordWebhookRegex = `^https:\/\/discord.com\/api\/webhooks\/(?P<id>\d+)\/(?P<token>\w+)$`
+const DiscordWebhookRegex = `^https:\/\/discord.com\/api\/webhooks\/(?P<id>\d+)\/(?P<token>\S+)$`
 
 type DiscordNotificationManager struct {
 	Session         *discordgo.Session
